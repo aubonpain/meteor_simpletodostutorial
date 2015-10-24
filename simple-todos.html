@@ -1,0 +1,32 @@
+<head>
+    <title>Todo List</title>
+</head>
+
+<body>
+<div class="container">
+    <header>
+        <h1>Todo List</h1>
+    </header>
+
+    <ul>
+        {{#each tasks}}
+            {{> task}}
+        {{/each}}
+    </ul>
+
+    <ul>
+        {{#each images}}
+            {{> image}}
+        {{/each}}
+    </ul>
+
+</div>
+</body>
+
+<template name="task">
+    <li>{{text}}</li>
+</template>
+
+<template name="image">
+    <img src="{{image}}" width=300px height=500px >
+</template>
