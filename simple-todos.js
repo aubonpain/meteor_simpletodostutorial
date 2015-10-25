@@ -5,20 +5,26 @@ if (Meteor.isClient) {
     Template.body.helpers({
         tasks: function () {
             // What about returning multiple things? E.g. date of creation etc.
-            return Tasks.find({}, {sort: {createdAt: -1}});
+            if (Session.get("hideCompleted")) {
+                // If hide completed is checked, filter tasks
+                return Tasks.find({checked: {$ne: true}}, {sort: {createdAt: -1}});
+            } else {
+                // Otherwise, return all of the tasks
+                return Tasks.find({}, {sort: {createdAt: -1}});
+            }
+        },
+
+        // This is used at <label class="hide-completed">
+        hideCompleted: function () {
+            // This statement returns true/false. You can check with a console log
+            // to document.getElementById("session_data").innerHTML = Session.get("hideCompleted");
+            return Session.get("hideCompleted");
+        },
+
+        incompleteTasks: function () {
+            return Tasks.find({checked: {$ne: true}}).count();
         }
 
-        /*tasks: [
-            { text: "This is first"  },
-            { text: "This is task 2" },
-            { text: "This is task 3" }
-        ],
-
-        places: [
-            { text: "Bombay" },
-            { text: "Zurich" },
-            { text: "Tunis" }
-        ]*/
 
 /*        images: [
             { image   : "/images/mercury/mercury.jpg" },
@@ -44,19 +50,23 @@ if (Meteor.isClient) {
             event.target.text.value = "";
         },
 
-        "click .delete": function () {
-            // _id = "ObjectId" of that record (unique)
-            Tasks.remove(this._id);
-        },
-
-        "click .toggle-selected": function () {
-            Tasks.update(this._id, {
-                // $set changes the value of the specified field
-                // If that field doesn't exist, it'll create it.
-                $set: {checked: ! this.checked}
-            });
+        "change .hide-completed input": function (event) {
+            Session.set("hideCompleted", event.target.checked);
         }
     });
+
+    Template.task.events({
+        "click .toggle-checked": function () {
+            // Set the checked property to the opposite of its current value
+            Tasks.update(this._id, {
+                $set: {checked: ! this.checked}
+            });
+        },
+        "click .delete": function () {
+            Tasks.remove(this._id);
+        }
+    });
+
 }
 
 if (Meteor.isServer) {
